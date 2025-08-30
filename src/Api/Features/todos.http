@@ -1,0 +1,47 @@
+# Define a variable for your API's base URL.
+@host = https://localhost:5001
+
+###
+# 1. GET all todos (should be empty at first)
+# @name getAllTodos
+GET {{host}}/api/todos
+Accept: application/json
+
+###
+# 2. CREATE a new todo item
+# The '@name' allows us to reference this request later.
+# @name createTodo
+POST {{host}}/api/todos
+Content-Type: application/json
+
+{
+  "title": "Finish devcontainer setup",
+  "isCompleted": false
+}
+
+###
+# 3. GET the newly created todo by its ID
+# This uses a variable to get the 'id' from the response of the 'createTodo' request.
+@newTodoId = {{createTodo.response.body.id}}
+GET {{host}}/api/todos/{{newTodoId}}
+Accept: application/json
+
+###
+# 4. UPDATE the todo item
+# We mark it as completed.
+PUT {{host}}/api/todos/{{newTodoId}}
+Content-Type: application/json
+
+{
+  "title": "Finish devcontainer setup",
+  "isCompleted": true
+}
+
+###
+# 5. GET all todos again (to see the updated item)
+GET {{host}}/api/todos
+Accept: application/json
+
+###
+# 6. DELETE the todo item
+DELETE {{host}}/api/todos/{{newTodoId}}
