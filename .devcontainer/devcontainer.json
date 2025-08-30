@@ -1,0 +1,44 @@
+{
+  "name": "api-samples",
+  "build": {
+    "dockerfile": "Dockerfile",
+    // Use the project root as the build context.
+    "context": ".."
+  },
+
+  // The folder inside the container where your project will be mounted.
+  // Using ${localWorkspaceFolderBasename} automatically uses your repo's folder name.
+  "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
+
+  // Forward ports from the services in the container to your local machine.
+  "forwardPorts": [
+    5000,
+    5001
+  ],
+  // Customize the VS Code experience inside the container.
+  "customizations": {
+    "vscode": {
+      "settings": {
+        // Set PowerShell as the default integrated terminal in the container.
+        "terminal.integrated.defaultProfile.linux": "pwsh",
+        // Point the C# Dev Kit to the correct solution file.
+        "dotnet.defaultSolution": "src/Api.sln"
+      },
+      "extensions": [
+        "ms-dotnettools.csdevkit",
+        "ms-azuretools.vscode-docker",
+        "ms-vscode.powershell",
+        "ms-toolsai.jupyter",
+        "ms-python.python",
+        "humao.rest-client",
+        "GitHub.copilot-chat"
+      ]
+    }
+  },
+
+  // Run as the non-root 'vscode' user created by the base image for better security.
+  "remoteUser": "vscode",
+
+  // Post-create commands run after the container is created.
+  "postCreateCommand": "sudo dotnet workload update && dotnet dev-certs https"
+}
