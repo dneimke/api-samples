@@ -1,4 +1,4 @@
-# Define a variable for your API's base URL.
+# Define a variable for our API's base URL.
 @host = https://localhost:5001
 
 ###
