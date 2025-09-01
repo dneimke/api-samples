@@ -1,40 +1,49 @@
-using System.Collections.Concurrent;
-
 namespace Api.Features;
 
 public static class TodoEndpoints
 {
-    private static readonly ConcurrentDictionary<Guid, TodoItem> Store = new();
-
-    public static WebApplication MapTestEndpoints(this WebApplication app)
+    public static WebApplication MapTodoEndpoints(this WebApplication app)
     {
         var group = app.MapGroup("/api/todos").WithTags("Todos");
 
-        group.MapGet("", (HttpContext ctx) => Results.Ok(Store.Values));
-
-        group.MapGet("/{id:guid}", (Guid id) =>
+        group.MapGet("", (ITodoService todoService) =>
         {
-            return Store.TryGetValue(id, out var item) ? Results.Ok(item) : Results.NotFound();
+            return Results.Ok(todoService.GetAll());
         });
 
-        group.MapPost("", (TodoItem todo) =>
+        group.MapGet("/{id:guid}", (Guid id, ITodoService todoService) =>
         {
+            var item = todoService.GetById(id);
+            return item is not null ? Results.Ok(item) : Results.NotFound();
+        });
+
+        group.MapPost("", (TodoItem todo, ITodoService todoService) =>
+        {
+            if (string.IsNullOrWhiteSpace(todo.Title))
+                return Results.BadRequest("Title is required.");
+
             todo.Id = Guid.NewGuid();
-            Store[todo.Id] = todo;
+            todoService.Create(todo);
             return Results.Created($"/api/todos/{todo.Id}", todo);
         });
 
-        group.MapPut("/{id:guid}", (Guid id, TodoItem todo) =>
+        group.MapPut("/{id:guid}", (Guid id, TodoItem todo, ITodoService todoService) =>
         {
-            if (!Store.ContainsKey(id)) return Results.NotFound();
+            if (!todoService.Update(id, todo))
+                return Results.NotFound();
+
+            if (string.IsNullOrWhiteSpace(todo.Title))
+                return Results.BadRequest("Title is required.");
+
             todo.Id = id;
-            Store[id] = todo;
+            todoService.Update(id, todo);
+
             return Results.NoContent();
         });
 
-        group.MapDelete("/{id:guid}", (Guid id) =>
+        group.MapDelete("/{id:guid}", (Guid id, ITodoService todoService) =>
         {
-            return Store.TryRemove(id, out _) ? Results.NoContent() : Results.NotFound();
+            return todoService.Delete(id) ? Results.NoContent() : Results.NotFound();
         });
 
         return app;

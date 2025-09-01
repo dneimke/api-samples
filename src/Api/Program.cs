@@ -6,6 +6,8 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddOpenApi(); // .NET 9 built-in OpenAPI support
+builder.Services.AddSingleton<ITodoService, TodoService>();
+
 
 var app = builder.Build();
 
@@ -26,6 +28,6 @@ app.MapGet("/health", () => Results.Ok(new { status = "ok" }));
 app.MapGet("/api/echo", (string? q) => Results.Ok(new { echo = q ?? "" }));
 
 // Register feature endpoints
-app.MapTestEndpoints();
+app.MapTodoEndpoints();
 
 app.Run();
