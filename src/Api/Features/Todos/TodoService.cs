@@ -1,6 +1,6 @@
 using System.Collections.Concurrent;
 
-namespace Api.Features;
+namespace Api.Features.Todos;
 
 public interface ITodoService
 {

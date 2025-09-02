@@ -1,4 +1,4 @@
-namespace Api.Features;
+namespace Api.Features.Todos;
 
 public static class TodoEndpoints
 {
